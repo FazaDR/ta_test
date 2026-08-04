@@ -195,7 +195,7 @@ geometries.extend([start,end])
 
 o3d.visualization.draw_geometries(
     geometries,
-    window_name="Long Corridor Environment",
+    
     width=1400,
     height=900,
     mesh_show_back_face=True

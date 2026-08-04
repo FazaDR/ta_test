@@ -118,7 +118,7 @@ disappearing_wall = create_box(
     [1.0, 0.4, 0.0]
 )
 
-# geometries.append(disappearing_wall)
+geometries.append(disappearing_wall)
 
 # ============================================================
 # Square exploration path
