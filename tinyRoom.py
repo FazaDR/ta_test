@@ -144,17 +144,22 @@ scan_positions = [
     np.array([1.50, 2.0, 1.50], dtype=np.float32),
     np.array([3.17, 2.0, 1.50], dtype=np.float32),
     np.array([4.83, 2.0, 1.50], dtype=np.float32),
+    np.array([3.17, 2.0, 1.50], dtype=np.float32),
 
     np.array([6.50, 2.0, 1.50], dtype=np.float32),
     np.array([6.50, 2.0, 3.17], dtype=np.float32),
     np.array([6.50, 2.0, 4.83], dtype=np.float32),
+    np.array([6.50, 2.0, 3.17], dtype=np.float32),
 
     np.array([6.50, 2.0, 6.50], dtype=np.float32),
     np.array([4.83, 2.0, 6.50], dtype=np.float32),
     np.array([3.17, 2.0, 6.50], dtype=np.float32),
+    np.array([4.83, 2.0, 6.50], dtype=np.float32),
 
     np.array([1.50, 2.0, 6.50], dtype=np.float32),
     np.array([1.50, 2.0, 4.83], dtype=np.float32),
+    np.array([1.50, 2.0, 4.83], dtype=np.float32),
+    np.array([1.50, 2.0, 3.17], dtype=np.float32),
     np.array([1.50, 2.0, 3.17], dtype=np.float32),
 ]
 
