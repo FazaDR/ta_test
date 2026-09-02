@@ -4,36 +4,6 @@ import time
 import os
 
 
-waypoints = [
-    np.array([5, 1, 5], dtype=np.float32),
-    # np.array([15, 1, 5], dtype=np.float32),
-    # np.array([15, 1, 15], dtype=np.float32),
-    # np.array([5, 1, 15], dtype=np.float32),
-]
-
-current_wp = 0
-speed = 0.05
-
-def animate(origin):
-
-    global current_wp
-
-    target = waypoints[current_wp]
-
-    direction = target - origin
-
-    dist = np.linalg.norm(direction)
-
-    if dist < 0.2:
-        current_wp = (current_wp + 1) % len(waypoints)
-        return origin
-
-    direction /= dist
-
-    origin += direction * speed
-
-    return origin
-
 def lidar_scan(scene, origin, dirs):
 
     origins = np.repeat(
@@ -73,27 +43,30 @@ def lidar_scan(scene, origin, dirs):
         (distances <= MAX_RANGE)
     )
 
-    hit_points = hit_points[mask]
+    return hit_points[mask]
 
-    return hit_points
+
+# ==========================================================
+# Coordinate visualization
+# ==========================================================
 
 points = np.array([
     [0, 0, 0],
-    [50, 0, 0],
-    [0, 50, 0],
-    [0, 0, 50]
+    [10, 0, 0],
+    [0, 10, 0],
+    [0, 0, 10]
 ])
 
 lines = np.array([
-    [0,1],
-    [0,2],
-    [0,3]
+    [0, 1],
+    [0, 2],
+    [0, 3]
 ])
 
 colors = np.array([
-    [1, 0, 0],  # X = red
-    [0, 1, 0],  # Y = green
-    [0, 0, 1]   # Z = blue
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1]
 ])
 
 line = o3d.geometry.LineSet()
@@ -102,72 +75,192 @@ line.lines = o3d.utility.Vector2iVector(lines)
 line.colors = o3d.utility.Vector3dVector(colors)
 
 
-floor = o3d.geometry.TriangleMesh.create_box(width = 20, height = 0.5, depth = 20 )
+# ==========================================================
+# Environment
+# ==========================================================
 
-pillar = o3d.geometry.TriangleMesh.create_box(width = 2, height = 4, depth = 2)
+ROOM_SIZE = 8.0
+ROOM_HEIGHT = 3.0
+WALL_THICKNESS = 0.2
 
+floor = o3d.geometry.TriangleMesh.create_box(
+    width=ROOM_SIZE,
+    height=0.2,
+    depth=ROOM_SIZE
+)
 
-wall1 = o3d.geometry.TriangleMesh.create_box(width = 20, height = 6, depth = 0.5)
-wall1.translate([0,0,0])
-wall2 = o3d.geometry.TriangleMesh.create_box(width = 0.5, height = 6, depth = 20)
-wall2.translate([20,0,0])
-wall3 = o3d.geometry.TriangleMesh.create_box(width = 20, height = 6, depth = 0.5)
-wall3.translate([0,0,20])
-wall4 = o3d.geometry.TriangleMesh.create_box(width = 0.5, height = 6, depth = 20)
-wall4.translate([0,0,0])
+wall1 = o3d.geometry.TriangleMesh.create_box(
+    width=ROOM_SIZE,
+    height=ROOM_HEIGHT,
+    depth=WALL_THICKNESS
+)
 
+wall2 = o3d.geometry.TriangleMesh.create_box(
+    width=WALL_THICKNESS,
+    height=ROOM_HEIGHT,
+    depth=ROOM_SIZE
+)
 
-floor.translate([0, 0, 0])
-pillar.translate([10, 0.5, 2.5])
+wall3 = o3d.geometry.TriangleMesh.create_box(
+    width=ROOM_SIZE,
+    height=ROOM_HEIGHT,
+    depth=WALL_THICKNESS
+)
 
-env = floor + pillar + wall1 + wall2 + wall3 + wall4
+wall4 = o3d.geometry.TriangleMesh.create_box(
+    width=WALL_THICKNESS,
+    height=ROOM_HEIGHT,
+    depth=ROOM_SIZE
+)
 
-env.compute_vertex_normals()
+wall1.translate([0, 0, 0])
+wall2.translate([ROOM_SIZE, 0, 0])
+wall3.translate([0, 0, ROOM_SIZE])
+wall4.translate([0, 0, 0])
 
 
 # ==========================================================
-# 3D LiDAR
+# Middle divider
 # ==========================================================
 
-tmesh = o3d.t.geometry.TriangleMesh.from_legacy(env)
+divider = o3d.geometry.TriangleMesh.create_box(
+    width=0.15,
+    height=ROOM_HEIGHT,
+    depth=5.0
+)
 
-scene = o3d.t.geometry.RaycastingScene()
-scene.add_triangles(tmesh)
+divider.translate([
+    ROOM_SIZE / 2 - 0.075,
+    0,
+    1.5
+])
 
-# lidar position
-origin = np.array([10, 2, 10], dtype=np.float32)
 
-lidar = o3d.geometry.TriangleMesh.create_sphere(radius=0.3)
+# ==========================================================
+# Environment versions
+# ==========================================================
+
+# Scans 0-5
+env_with_divider = (
+    floor +
+    divider +
+    wall1 +
+    wall2 +
+    wall3 +
+    wall4
+)
+
+# Scans 6+
+env_without_divider = (
+    floor +
+    wall1 +
+    wall2 +
+    wall3 +
+    wall4
+)
+
+env_with_divider.compute_vertex_normals()
+env_without_divider.compute_vertex_normals()
+
+
+# ==========================================================
+# Raycasting scene: divider present
+# ==========================================================
+
+tmesh_with_divider = (
+    o3d.t.geometry.TriangleMesh.from_legacy(
+        env_with_divider
+    )
+)
+
+scene_with_divider = o3d.t.geometry.RaycastingScene()
+
+scene_with_divider.add_triangles(
+    tmesh_with_divider
+)
+
+
+# ==========================================================
+# Raycasting scene: divider removed
+# ==========================================================
+
+tmesh_without_divider = (
+    o3d.t.geometry.TriangleMesh.from_legacy(
+        env_without_divider
+    )
+)
+
+scene_without_divider = o3d.t.geometry.RaycastingScene()
+
+scene_without_divider.add_triangles(
+    tmesh_without_divider
+)
+
+
+# ==========================================================
+# LiDAR positions
+# ==========================================================
+
+scan_positions = [
+
+    np.array([1.50, 2.0, 1.50], dtype=np.float32),
+    np.array([3.17, 2.0, 1.50], dtype=np.float32),
+    np.array([4.83, 2.0, 1.50], dtype=np.float32),
+
+    np.array([6.50, 2.0, 1.50], dtype=np.float32),
+    np.array([6.50, 2.0, 3.17], dtype=np.float32),
+    np.array([6.50, 2.0, 4.83], dtype=np.float32),
+
+    np.array([6.50, 2.0, 6.50], dtype=np.float32),
+    np.array([4.83, 2.0, 6.50], dtype=np.float32),
+    np.array([3.17, 2.0, 6.50], dtype=np.float32),
+
+    np.array([1.50, 2.0, 6.50], dtype=np.float32),
+    np.array([1.50, 2.0, 4.83], dtype=np.float32),
+    np.array([1.50, 2.0, 3.17], dtype=np.float32),
+]
+
+
+# ==========================================================
+# LiDAR visualization
+# ==========================================================
+
+origin = scan_positions[0].copy()
+
+lidar = o3d.geometry.TriangleMesh.create_sphere(
+    radius=0.3
+)
+
 lidar.compute_vertex_normals()
 lidar.paint_uniform_color([1, 0, 1])
-
 lidar.translate(origin)
+
 
 # ==========================================================
 # LiDAR specification
 # ==========================================================
 
-HFOV = 360.0          # degrees
-VUPFOV = 30.0           # degrees
-VDOWNFOV = 30.0         # degrees
+HFOV = 360.0
+VUPFOV = 70.0
+VDOWNFOV = 70.0
 
-NUM_H = 256          # horizontal rays
-NUM_V = 64            # vertical channels
+NUM_H = 128
+NUM_V = 64
 
-# vertical angles
+
 v_angles = np.linspace(
     -VDOWNFOV,
     VUPFOV,
     NUM_V
 )
 
-# horizontal angles
 h_angles = np.linspace(
     0,
     HFOV,
     NUM_H,
     endpoint=False
 )
+
 
 dirs = []
 
@@ -185,6 +278,7 @@ for v_deg in v_angles:
 
         dirs.append([x, y, z])
 
+
 dirs = np.asarray(
     dirs,
     dtype=np.float32
@@ -193,24 +287,17 @@ dirs = np.asarray(
 print("Total rays:", len(dirs))
 
 
-
-hit_points = lidar_scan(scene, origin, dirs)
-
-# create point cloud from lidar returns
-pcd = o3d.geometry.PointCloud()
-pcd.points = o3d.utility.Vector3dVector(hit_points)
-
-# optional: make lidar points yellow
-pcd.paint_uniform_color([1, 1, 0])
-
 # ==========================================================
-# Dataset output
+# Dataset
 # ==========================================================
 
-os.makedirs("dataset/scans", exist_ok=True)
+os.makedirs(
+    "datasetFleeting/scans",
+    exist_ok=True
+)
 
 pose_file = open(
-    "dataset/poses.csv",
+    "datasetFleeting/poses.csv",
     "w"
 )
 
@@ -218,43 +305,110 @@ pose_file.write(
     "frame,timestamp,x,y,z\n"
 )
 
-frame_id = 0
 
 # ==========================================================
-# Visualize
+# Initial point cloud
+# ==========================================================
+
+hit_points = lidar_scan(
+    scene_with_divider,
+    origin,
+    dirs
+)
+
+pcd = o3d.geometry.PointCloud()
+
+pcd.points = o3d.utility.Vector3dVector(
+    hit_points
+)
+
+pcd.paint_uniform_color([1, 1, 0])
+
+
+# ==========================================================
+# Visualization
 # ==========================================================
 
 vis = o3d.visualization.Visualizer()
+
 vis.create_window()
 
-vis.add_geometry(env)
+vis.add_geometry(env_with_divider)
 vis.add_geometry(line)
 vis.add_geometry(pcd)
 vis.add_geometry(lidar)
 
 
-prev_origin = origin.copy()
+ctr = vis.get_view_control()
 
-while vis.poll_events():
+ctr.set_front([0.0, 1.0, 0.0])
+ctr.set_up([0.0, 0.0, 1.0])
+ctr.set_lookat([
+    ROOM_SIZE / 2,
+    ROOM_HEIGHT / 2,
+    ROOM_SIZE / 2
+])
+ctr.set_zoom(0.35)
 
-    # move lidar
-    origin = animate(origin)
 
-    delta = origin - prev_origin
+# ==========================================================
+# Generate datasetFleeting
+# ==========================================================
 
-    lidar.translate(delta)
+for frame_id, origin in enumerate(scan_positions):
 
-    # new scan
-    hit_points = lidar_scan(scene, origin, dirs)
+    # ------------------------------------------------------
+    # Divider exists for scans 0-5
+    # Divider disappears starting at scan 6
+    # ------------------------------------------------------
+
+    if frame_id < 6:
+
+        current_scene = scene_with_divider
+
+    else:
+
+        current_scene = scene_without_divider
+
+        # Change visualization exactly once
+        if frame_id == 6:
+
+            vis.remove_geometry(
+                env_with_divider,
+                reset_bounding_box=False
+            )
+
+            vis.add_geometry(
+                env_without_divider,
+                reset_bounding_box=False
+            )
+
+    # ------------------------------------------------------
+    # Move LiDAR
+    # ------------------------------------------------------
+
+    lidar.translate(
+        origin - np.asarray(lidar.get_center())
+    )
+
+    # ------------------------------------------------------
+    # Generate scan
+    # ------------------------------------------------------
+
+    hit_points = lidar_scan(
+        current_scene,
+        origin,
+        dirs
+    )
 
     timestamp = time.time()
 
-    # --------------------------------------------------
-    # Save point cloud as CSV
-    # --------------------------------------------------
+    # ------------------------------------------------------
+    # Save scan
+    # ------------------------------------------------------
 
     scan_filename = (
-        f"dataset/scans/scan_{frame_id:06d}.csv"
+        f"datasetFleeting/scans/scan_{frame_id:06d}.csv"
     )
 
     header = (
@@ -273,9 +427,9 @@ while vis.poll_events():
         comments=""
     )
 
-    # --------------------------------------------------
-    # Save pose log
-    # --------------------------------------------------
+    # ------------------------------------------------------
+    # Save pose
+    # ------------------------------------------------------
 
     pose_file.write(
         f"{frame_id},"
@@ -285,12 +439,13 @@ while vis.poll_events():
         f"{origin[2]}\n"
     )
 
-    frame_id += 1
+    # ------------------------------------------------------
+    # Update visualization
+    # ------------------------------------------------------
 
-    # update visualization
-    pcd.points = o3d.utility.Vector3dVector(hit_points)
-
-    
+    pcd.points = o3d.utility.Vector3dVector(
+        hit_points
+    )
 
     vis.update_geometry(lidar)
     vis.update_geometry(pcd)
@@ -298,8 +453,18 @@ while vis.poll_events():
     vis.poll_events()
     vis.update_renderer()
 
-    prev_origin = origin.copy()
-    time.sleep(0.1)
+    print(
+        f"Scan {frame_id + 1}/{len(scan_positions)} "
+        f"| points: {len(hit_points)} "
+        f"| divider: {frame_id < 6}"
+    )
 
+    time.sleep(1)
+
+
+print("Finished scanning.")
+
+vis.run()
 vis.destroy_window()
+
 pose_file.close()
