@@ -894,14 +894,14 @@ def visualize_map(atc: ATCDT):
 if __name__ == "__main__":
 
     dataset = ScanDataset(
-        "datasetFleeting/scans"
+        "datasetStatic/scans"
     )
 
     scan = dataset[0]
 
     atc = ATCDT(
         vigilance=0.4,
-        lambda_points=6000
+        lambda_points=17000
     )
 
     visualizer = ATCVisualizer(
@@ -928,6 +928,12 @@ if __name__ == "__main__":
             update_every=20
         )
 
+        print(
+            f"Frame {i} complete | "
+            f"Nodes: {atc.map.node_count} | "
+            f"Edges: {atc.map.num_edges()}"
+        )
+
     print()
     print("Finished.")
     print(
@@ -939,5 +945,6 @@ if __name__ == "__main__":
         atc.map.num_edges()
     )
 
+    # visualizer.close()
 
     visualize_map(atc)

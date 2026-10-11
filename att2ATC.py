@@ -213,7 +213,7 @@ class ATCDT:
         node_id = self.map.add_node(point)
 
         self.winner_count = np.concatenate(
-            (self.winner_count, np.array([0], dtype=np.int32))
+            (self.winner_count, np.array([1], dtype=np.int32))
         )
 
         return node_id
@@ -254,6 +254,8 @@ class ATCDT:
         winner
     ):
 
+        # winner = s1
+        # M_s1 = number of times this node became the 1st winner
         self.winner_count[winner] += 1
 
         lr = 1.0 / (10 * self.winner_count[winner])
@@ -261,9 +263,9 @@ class ATCDT:
         self.map.positions[winner] += \
             lr * (point - self.map.positions[winner])
 
+        # Update neighboring nodes,
+        # but DO NOT increment their winner count.
         for neighbor in self.map.neighbors(winner):
-
-            self.winner_count[neighbor] += 1
 
             lr = 1.0 / (100 * self.winner_count[neighbor])
 
@@ -458,11 +460,11 @@ def visualize_map(atc: ATCDT):
 if __name__ == "__main__":
 
     dataset = ScanDataset(
-        "dataset/scans",
+        "datasetStatic/scans",
     )
 
     atc = ATCDT(
-        vigilance=0.3,
+        vigilance=1,
         lambda_points=6000
     )
 

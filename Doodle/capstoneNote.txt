@@ -1,0 +1,31 @@
+What we know :
+- Lab manager are professors
+- HIMA able to request a room, and have rooms info that are updated once a month
+- Official room assignment for classes is BAAK's responsibility(needed more validation)
+
+What we want :
+- info about room are actually being spread thin with no centralized ground truth
+
+
+How to validate :
+- person who has experienced to claim a lab via penanggung jawab(dosen), HIMA member, and BAAK regarding room data
+
+
+quetsion answer is in what we know
+
+V2
+
+What we know :
+
+
+
+
+
+
+Asumsi :
+
+
+
+Pertanyaan validasi :
+
+

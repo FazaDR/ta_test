@@ -8,7 +8,7 @@ import open3d as o3d
 # Configuration
 # ==========================================================
 
-DATASET_FOLDER = "datasetStatic/scans"
+DATASET_FOLDER = "datasetShowcase/scans"
 
 # Size of each voxel in meters.
 # Try:
@@ -17,7 +17,7 @@ DATASET_FOLDER = "datasetStatic/scans"
 #   0.20 -> coarse
 VOXEL_SIZE = 0.10
 
-OUTPUT_FILE = "datasetStatic/global_voxel_map.ply"
+OUTPUT_FILE = "datasetShowcase/global_voxel_map.ply"
 
 
 # ==========================================================

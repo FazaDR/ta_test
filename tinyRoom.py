@@ -144,24 +144,52 @@ scan_positions = [
     np.array([1.50, 2.0, 1.50], dtype=np.float32),
     np.array([3.17, 2.0, 1.50], dtype=np.float32),
     np.array([4.83, 2.0, 1.50], dtype=np.float32),
-    np.array([3.17, 2.0, 1.50], dtype=np.float32),
 
     np.array([6.50, 2.0, 1.50], dtype=np.float32),
     np.array([6.50, 2.0, 3.17], dtype=np.float32),
     np.array([6.50, 2.0, 4.83], dtype=np.float32),
-    np.array([6.50, 2.0, 3.17], dtype=np.float32),
 
     np.array([6.50, 2.0, 6.50], dtype=np.float32),
     np.array([4.83, 2.0, 6.50], dtype=np.float32),
     np.array([3.17, 2.0, 6.50], dtype=np.float32),
-    np.array([4.83, 2.0, 6.50], dtype=np.float32),
 
     np.array([1.50, 2.0, 6.50], dtype=np.float32),
     np.array([1.50, 2.0, 4.83], dtype=np.float32),
-    np.array([1.50, 2.0, 4.83], dtype=np.float32),
-    np.array([1.50, 2.0, 3.17], dtype=np.float32),
     np.array([1.50, 2.0, 3.17], dtype=np.float32),
 ]
+
+
+# scan_positions = [
+#     np.array([1.50, 2.0, 1.50], dtype=np.float32),
+#     np.array([1.50, 2.0, 1.50], dtype=np.float32),
+#     np.array([3.17, 2.0, 1.50], dtype=np.float32),
+#     np.array([3.17, 2.0, 1.50], dtype=np.float32),
+#     np.array([4.83, 2.0, 1.50], dtype=np.float32),
+#     np.array([4.83, 2.0, 1.50], dtype=np.float32),
+
+#     np.array([6.50, 2.0, 1.50], dtype=np.float32),
+#     np.array([6.50, 2.0, 1.50], dtype=np.float32),
+#     np.array([6.50, 2.0, 3.17], dtype=np.float32),
+#     np.array([6.50, 2.0, 3.17], dtype=np.float32),
+#     np.array([6.50, 2.0, 4.83], dtype=np.float32),
+#     np.array([6.50, 2.0, 4.83], dtype=np.float32),
+
+#     np.array([6.50, 2.0, 6.50], dtype=np.float32),
+#     np.array([6.50, 2.0, 6.50], dtype=np.float32),
+#     np.array([4.83, 2.0, 6.50], dtype=np.float32),
+#     np.array([4.83, 2.0, 6.50], dtype=np.float32),
+#     np.array([3.17, 2.0, 6.50], dtype=np.float32),
+#     np.array([3.17, 2.0, 6.50], dtype=np.float32),
+
+#     np.array([1.50, 2.0, 6.50], dtype=np.float32),
+#     np.array([1.50, 2.0, 6.50], dtype=np.float32),
+#     np.array([1.50, 2.0, 4.83], dtype=np.float32),
+#     np.array([1.50, 2.0, 4.83], dtype=np.float32),
+#     np.array([1.50, 2.0, 3.17], dtype=np.float32),
+#     np.array([1.50, 2.0, 3.17], dtype=np.float32),
+# ]
+
+
 
 origin = scan_positions[0].copy()
 
@@ -179,8 +207,8 @@ HFOV = 360.0          # degrees
 VUPFOV = 70.0           # degrees
 VDOWNFOV = 70.0         # degrees
 
-NUM_H = 128          # horizontal rays
-NUM_V = 64            # vertical channels
+NUM_H = 128 * 1         # horizontal rays
+NUM_V = 64  * 1      # vertical channels
 
 # vertical angles
 v_angles = np.linspace(

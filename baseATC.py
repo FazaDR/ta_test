@@ -615,7 +615,7 @@ if __name__ == "__main__":
 
     atc = ATCDT(
         vigilance=0.4,
-        lambda_points=6000
+        lambda_points=9999999
     )
 
     for i in range(len(dataset)):
@@ -628,6 +628,12 @@ if __name__ == "__main__":
         )
 
         atc.process_frame(scan)
+
+        print(
+            f"Frame {i} complete | "
+            f"Nodes: {atc.map.node_count} | "
+            f"Edges: {atc.map.num_edges()}"
+        )
 
     print()
     print("Finished.")
